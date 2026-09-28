@@ -133,7 +133,7 @@ fun ExamScreen(
             onDismissRequest = { showSubmitDialog = false },
             title = { Text("确认交卷?") },
             text = {
-                val answered = state.answers.count { it.value.isNotEmpty() }
+                val answered = remember(state.answers) { state.answers.count { it.value.isNotEmpty() } }
                 Text("已答 $answered/${state.totalCount} 题,交卷后立即评分,不能继续作答。")
             },
             confirmButton = {
@@ -208,10 +208,11 @@ private fun ExamContent(
                 ) {
                     Icon(Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "上一题")
                 }
+                val answeredCount = remember(state.answers) { state.answers.count { it.value.isNotEmpty() } }
                 FilledTonalButton(onClick = { showAnswerCard = true }) {
                     Icon(Icons.Filled.GridView, contentDescription = null)
                     Text(
-                        "答题卡 ${state.answers.count { it.value.isNotEmpty() }}/${state.totalCount}",
+                        "答题卡 $answeredCount/${state.totalCount}",
                         Modifier.padding(start = 6.dp),
                     )
                 }
@@ -226,9 +227,10 @@ private fun ExamContent(
     }
 
     if (showAnswerCard) {
+        val answerCardResults = remember(state.answers) { state.answers.mapValues { (_, v) -> v.isNotEmpty() } }
         AnswerCardSheet(
             questions = state.questions,
-            results = state.answers.mapValues { (_, v) -> v.isNotEmpty() },
+            results = answerCardResults,
             currentIndex = currentIndex,
             onJump = { index ->
                 showAnswerCard = false

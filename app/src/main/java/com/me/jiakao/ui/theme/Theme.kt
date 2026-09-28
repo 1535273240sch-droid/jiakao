@@ -11,64 +11,67 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.me.jiakao.data.ThemeMode
 
-// 驾校蓝
-private val BluePrimary = Color(0xFF0E5FD8)
-private val BluePrimaryDark = Color(0xFFADC6FF)
-private val BlueContainer = Color(0xFFD8E2FF)
-private val BlueContainerDark = Color(0xFF0B4794)
-// 交警橙
-private val OrangeSecondary = Color(0xFFE8641B)
-private val OrangeSecondaryDark = Color(0xFFFFB784)
-private val OrangeContainer = Color(0xFFFFDCC7)
-private val OrangeContainerDark = Color(0xFF6F3A00)
-// 通行绿
-private val GreenCorrect = Color(0xFF218A4B)
-private val GreenCorrectDark = Color(0xFF7AD98F)
-private val GreenContainer = Color(0xFFC4F1CE)
-private val GreenContainerDark = Color(0xFF175327)
+// 羊皮卷国风典雅配色
+// 朱砂印章红 (Primary)
+private val CinnabarPrimary = Color(0xFFA93226)
+private val CinnabarPrimaryDark = Color(0xFFE57373)
+private val CinnabarContainer = Color(0xFFFBE4E1)
+private val CinnabarContainerDark = Color(0xFF681A1B)
+
+// 沉香琥珀金 (Secondary)
+private val AmberSecondary = Color(0xFFB57C2B)
+private val AmberSecondaryDark = Color(0xFFE8BD77)
+private val AmberContainer = Color(0xFFF7ECDB)
+private val AmberContainerDark = Color(0xFF5F4100)
+
+// 碧玉翠竹绿 (Tertiary / 正确选项)
+private val JadeCorrect = Color(0xFF2E7D4E)
+private val JadeCorrectDark = Color(0xFF81C784)
+private val JadeContainer = Color(0xFFD7F1E1)
+private val JadeContainerDark = Color(0xFF134E2A)
 
 private val LightColors = lightColorScheme(
-    primary = BluePrimary,
+    primary = CinnabarPrimary,
     onPrimary = Color.White,
-    primaryContainer = BlueContainer,
-    onPrimaryContainer = Color(0xFF001A41),
-    secondary = OrangeSecondary,
+    primaryContainer = CinnabarContainer,
+    onPrimaryContainer = Color(0xFF4C0E0F),
+    secondary = AmberSecondary,
     onSecondary = Color.White,
-    secondaryContainer = OrangeContainer,
-    onSecondaryContainer = Color(0xFF5B2606),
-    tertiary = GreenCorrect,
+    secondaryContainer = AmberContainer,
+    onSecondaryContainer = Color(0xFF422800),
+    tertiary = JadeCorrect,
     onTertiary = Color.White,
-    tertiaryContainer = GreenContainer,
-    onTertiaryContainer = Color(0xFF072711),
-    background = Color(0xFFF7F9FE),
-    onBackground = Color(0xFF191C20),
-    surface = Color(0xFFF7F9FE),
-    onSurface = Color(0xFF191C20),
-    surfaceVariant = Color(0xFFE0E2EC),
-    onSurfaceVariant = Color(0xFF43474E),
-    outline = Color(0xFF74777F),
+    tertiaryContainer = JadeContainer,
+    onTertiaryContainer = Color(0xFF00391A),
+    background = Color(0xFFF9F6EE),       // 经典暖调羊皮纸原色
+    onBackground = Color(0xFF261C14),     // 焦墨黑
+    surface = Color(0xFFFBF8F2),          // 卷轴白绢面
+    onSurface = Color(0xFF261C14),
+    surfaceVariant = Color(0xFFEBE3D3),   // 宣纸微灰色
+    onSurfaceVariant = Color(0xFF5D5448), // 松烟灰
+    outline = Color(0xFFCFBFAB),          // 绢帛微框
 )
 
 private val DarkColors = darkColorScheme(
-    primary = BluePrimaryDark,
-    onPrimary = Color(0xFF002E69),
-    primaryContainer = BlueContainerDark,
-    onPrimaryContainer = BlueContainer,
-    secondary = OrangeSecondaryDark,
-    onSecondary = Color(0xFF4A2000),
-    secondaryContainer = OrangeContainerDark,
-    onSecondaryContainer = OrangeContainer,
-    tertiary = GreenCorrectDark,
-    onTertiary = Color(0xFF00391A),
-    tertiaryContainer = GreenContainerDark,
-    onTertiaryContainer = GreenContainer,
-    background = Color(0xFF10141B),
-    onBackground = Color(0xFFE1E2E8),
-    surface = Color(0xFF10141B),
-    onSurface = Color(0xFFE1E2E8),
-    surfaceVariant = Color(0xFF282C34),
-    onSurfaceVariant = Color(0xFFC3C6CF),
-    outline = Color(0xFF8D9199),
+    primary = CinnabarPrimaryDark,
+    onPrimary = Color(0xFF531113),
+    primaryContainer = CinnabarContainerDark,
+    onPrimaryContainer = Color(0xFFFFDAD7),
+    secondary = AmberSecondaryDark,
+    onSecondary = Color(0xFF422C00),
+    secondaryContainer = AmberContainerDark,
+    onSecondaryContainer = Color(0xFFFFDF9E),
+    tertiary = JadeCorrectDark,
+    onTertiary = Color(0xFF00381B),
+    tertiaryContainer = JadeContainerDark,
+    onTertiaryContainer = Color(0xFFA1F2BC),
+    background = Color(0xFF191715),       // 夜读沉香玄木
+    onBackground = Color(0xFFEDE6DA),     // 暖白米纸字
+    surface = Color(0xFF201D1A),
+    onSurface = Color(0xFFEDE6DA),
+    surfaceVariant = Color(0xFF332D27),
+    onSurfaceVariant = Color(0xFFC7BCAD),
+    outline = Color(0xFF5C5246),
 )
 
 /**

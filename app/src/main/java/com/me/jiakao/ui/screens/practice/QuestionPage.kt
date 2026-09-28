@@ -135,8 +135,9 @@ fun QuestionPage(
             }
         }
         if (question.type == QType.MULTI && chosen == null && !reciteMode && !examMode) {
+            val selectedSorted = remember(pendingKeys) { pendingKeys.toList().sorted() }
             MultiConfirmBar(
-                selected = pendingKeys.toList().sorted(),
+                selected = selectedSorted,
                 onConfirm = { onConfirmMulti(question) },
             )
         }
@@ -361,8 +362,9 @@ private fun ExplanationCard(question: Question, visible: Boolean) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    val formattedAnswer = remember(question.answer) { question.answer.sorted().joinToString(" ") }
                     Text(
-                        question.answer.sorted().joinToString(" "),
+                        formattedAnswer,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.tertiary,

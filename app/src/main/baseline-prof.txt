@@ -1,0 +1,27 @@
+# Baseline Profile for Jiakao Android App
+# Accelerates startup, navigation, and core quiz interaction rendering paths
+
+HSPLcom/me/jiakao/JiakaoApp;-><init>()V
+HSPLcom/me/jiakao/JiakaoApp;->onCreate()V
+HSPLcom/me/jiakao/MainActivity;-><init>()V
+HSPLcom/me/jiakao/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/me/jiakao/MainViewModel;-><init>(Lcom/me/jiakao/data/AppSettings;Lcom/me/jiakao/data/BankAutoSeeder;)V
+HSPLcom/me/jiakao/data/BankAutoSeeder;-><init>(Landroid/content/Context;Lcom/me/jiakao/core/model/QuestionStore;Lcom/me/jiakao/core/update/LocalPackImporter;)V
+HSPLcom/me/jiakao/data/BankAutoSeeder;->seedAsync()V
+HSPLcom/me/jiakao/nav/JiakaoRootKt;->JiakaoRoot(Landroidx/navigation/NavHostController;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/me/jiakao/ui/theme/ThemeKt;->JiakaoTheme(Lcom/me/jiakao/data/ThemeMode;FLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/me/jiakao/ui/screens/home/HomeScreenKt;->HomeScreen(Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lcom/me/jiakao/ui/screens/home/HomeViewModel;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/me/jiakao/ui/screens/home/HomeViewModel;-><init>(Lcom/me/jiakao/data/AppSettings;Lcom/me/jiakao/core/model/QuizRepository;Lcom/me/jiakao/core/model/UserRepository;Lcom/me/jiakao/core/model/BankUpdater;)V
+HSPLcom/me/jiakao/ui/screens/practice/PracticeScreenKt;->PracticeScreen(Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lcom/me/jiakao/ui/screens/practice/PracticeViewModel;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/me/jiakao/ui/screens/practice/PracticeViewModel;-><init>(Landroidx/lifecycle/SavedStateHandle;Lcom/me/jiakao/core/model/QuizRepository;Lcom/me/jiakao/core/model/UserRepository;Lcom/me/jiakao/core/model/MediaPrefetcher;Lcom/me/jiakao/data/AppSettings;)V
+HSPLcom/me/jiakao/ui/screens/exam/ExamScreenKt;->ExamScreen(Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lcom/me/jiakao/ui/screens/exam/ExamViewModel;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/me/jiakao/ui/screens/exam/ExamViewModel;-><init>(Landroidx/lifecycle/SavedStateHandle;Lcom/me/jiakao/core/model/QuizRepository;Lcom/me/jiakao/core/model/UserRepository;Lcom/me/jiakao/core/model/ExamService;Lcom/me/jiakao/data/AppSettings;)V
+HSPLcom/me/jiakao/core/data/QuizRepositoryImpl;->counts(Lcom/me/jiakao/core/model/Scope;)Lkotlinx/coroutines/flow/Flow;
+HSPLcom/me/jiakao/core/data/QuizRepositoryImpl;->chapters(Lcom/me/jiakao/core/model/Scope;)Lkotlinx/coroutines/flow/Flow;
+HSPLcom/me/jiakao/core/data/QuizRepositoryImpl;->questions(Lcom/me/jiakao/core/model/Scope;Ljava/lang/String;)Lkotlinx/coroutines/flow/Flow;
+HSPLcom/me/jiakao/core/data/UserRepositoryImpl;->progress(Lcom/me/jiakao/core/model/Scope;)Lkotlinx/coroutines/flow/Flow;
+HSPLcom/me/jiakao/core/data/db/QuizDatabase;->questionDao()Lcom/me/jiakao/core/data/db/QuestionDao;
+HSPLcom/me/jiakao/core/data/db/QuizDatabase;->chapterDao()Lcom/me/jiakao/core/data/db/ChapterDao;
+HSPLcom/me/jiakao/core/data/db/UserDatabase;->userRecordDao()Lcom/me/jiakao/core/data/db/UserRecordDao;
+HSPLcom/me/jiakao/core/update/BankUpdaterImpl;->state()Lkotlinx/coroutines/flow/StateFlow;
+HSPLcom/me/jiakao/core/update/LocalPackImporter;->import(Ljava/io/InputStream;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

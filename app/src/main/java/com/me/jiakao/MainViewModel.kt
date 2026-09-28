@@ -14,7 +14,12 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     settings: AppSettings,
+    bankAutoSeeder: com.me.jiakao.data.BankAutoSeeder,
 ) : ViewModel() {
+
+    init {
+        bankAutoSeeder.seedAsync()
+    }
 
     val settings: StateFlow<SettingsState> = settings.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsState())
