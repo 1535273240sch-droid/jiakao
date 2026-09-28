@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "bank_version": 1,
+  "released_at": "2026-09-28T15:40:00Z",
+  "min_app_version_code": 1,
+  "chapters": [
+    {
+      "id": "s1-c01",
+      "subject": 1,
+      "name": "道路通行条件及通行规定",
+      "order": 1
+    },
+    {
+      "id": "s1-c02",
+      "subject": 1,
+      "name": "道路交通安全法律、法规和规章",
+      "order": 2
+    },
+    {
+      "id": "s1-c03",
+      "subject": 1,
+      "name": "交通信号",
+      "order": 3
+    },
+    {
+      "id": "s1-c04",
+      "subject": 1,
+      "name": "安全行车、文明驾驶基础知识",
+      "order": 4
+    },
+    {
+      "id": "s1-c05",
+      "subject": 1,
+      "name": "机动车驾驶操作相关基础知识",
+      "order": 5
+    },
+    {
+      "id": "s4-c01",
+      "subject": 4,
+      "name": "安全文明驾驶操作要求",
+      "order": 1
+    },
+    {
+      "id": "s4-c02",
+      "subject": 4,
+      "name": "恶劣气象和复杂道路条件下的安全驾驶知识",
+      "order": 2
+    },
+    {
+      "id": "s4-c03",
+      "subject": 4,
+      "name": "爆胎等紧急情况下的临危处置方法",
+      "order": 3
+    },
+    {
+      "id": "s4-c04",
+      "subject": 4,
+      "name": "防范次生事故处置知识",
+      "order": 4
+    },
+    {
+      "id": "s4-c05",
+      "subject": 4,
+      "name": "伤员急救知识",
+      "order": 5
+    },
+    {
+      "id": "s4-c06",
+      "subject": 4,
+      "name": "文明行车常识",
+      "order": 6
+    }
+  ],
+  "full": {
+    "url": "full/bank-v1.jsonl.gz",
+    "sha256": "3c92b62b1baac984db61c694cb2c0ee4dd0ebdd0fd099cd52e36952278b26a39",
+    "bytes": 5086,
+    "count": 170
+  },
+  "deltas": [],
+  "media_base": "media/",
+  "bundle": {
+    "url": "bundle/bundle-v1.zip",
+    "sha256": "028bdcf990d39636f0970d94f552cf17d6e7bd6d945842eac8d5b75f03f6750d",
+    "bytes": 7764
+  }
+}
