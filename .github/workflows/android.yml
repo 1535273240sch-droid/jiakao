@@ -23,8 +23,19 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      # 不用 android-actions/setup-android@v3：它是 Node 20 的 action，在 runner 上被
+      # 强制跑在 Node 24 上，接受 license 的中途就失败退出（日志里无 ##[error]，
+      # 只有 "Node.js 20 is deprecated ... forced to run on Node.js 24" 警告）。
+      # ubuntu runner 镜像本来就预装 Android SDK 并预接受了 license，这里只用镜像自带的
+      # sdkmanager 补齐本项目钉住的版本（core/data 显式 buildToolsVersion = 34.0.0）。
+      - name: Ensure Android SDK packages
+        run: |
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          CMDLINE="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$CMDLINE" --licenses >/dev/null 2>&1 || true
+          "$CMDLINE" "platforms;android-35" "build-tools;34.0.0" || true
+          echo "ANDROID_HOME=$SDK"
+          ls "$SDK/platforms" "$SDK/build-tools"
 
       - name: Cache Gradle
         uses: actions/cache@v4
