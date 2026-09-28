@@ -158,3 +158,39 @@ Python       05-content-pipeline\out\tools\pipeline\.venv\Scripts\python.exe
 
 全部原始文件在 `_attic/original/`：`assemble.sh.bak`、`verify.sh.bak`、`libs.versions.toml.01.bak`；误建目录在 `_attic/02-app-ui-stray/`。
 `_attic/` 不在任何模块的 `out/` 下，**不会被 `assemble.sh` 合并**。审核脚本也放在这里：`check_catalog.py`（别名解析）、`check_contract8.py`（§8 一致性）、`verify_check.cmd`（verify.sh 等价检查）。
+
+---
+
+## 附录 · 拼装/编译/测试/CI 阶段的实测结果（2026-09-28 晚，本次审核之后）
+
+上面第 1~3 节是**静态**审计结论。实际拼装（本机无 bash，用等价的 `_attic/assemble_local.ps1` 复现 `assemble.sh` 的合并与排除规则）并真正编译之后，又暴露出 7 类问题，全部已修复：
+
+| # | 问题 | 性质 |
+|---|---|---|
+| 1 | 根 `build.gradle.kts` 只声明了 6 个插件的 `apply false`，缺 `android.application`/`android.test`/`kotlin.compose`/`androidx.baselineprofile` | AGP 与 KGP 都是**同一 artifact 承载多个插件 id**，缺声明会让子模块报 `the plugin is already on the classpath with an unknown version`，**配置期就失败** |
+| 2 | `core/update/…/net/Downloader.kt` 的 KDoc 里写了 `dl/*.part` | Kotlin 的块注释**可嵌套**，这个 `/*` 开了一个嵌套注释并被后面的 `*/` 提前闭合，导致**整个文件被吞成注释**（`Unclosed comment`），并连带 17 条 KSP `error.NonExistentClass` —— 04 从未编译过，所以没暴露 |
+| 3 | `core/update/…/net/OkHttpDownloader.kt` 覆写 `fetchText`/`downloadToTemp` 时重复声明默认参数值 | Kotlin 不允许 override 带默认值（3 处报错） |
+| 4 | `core/update/src/debug/AndroidManifest.xml` 把 `<receiver>` 放在 `<manifest>` 级 | AAPT 报 `unexpected element <receiver> found in <manifest>`；必须放进 `<application>` |
+| 5 | 我在问题 2（拼装排除规则）上的过度删除 | 我最初把 `app/src/debug/.../fake/` **整个目录**排除了，结果 `:app:testDebugUnitTest` 编译不过——同目录的 `FakeBank`/`FakeQuizRepository` 等是**单测直接引用**的。正确做法是只删 `FakeBindings.kt`（真正会 `DuplicateBindings` 的那个），已同步修正 `assemble.sh` 与本脚本 |
+| 6 | `core:update` 有 6 个测试断言失败（88 个用例） | 4 个是测试/夹具侧笔误：`questionLine` 已含 `"media":[]`，测试再插入一个 media 键形成**重复键**（kotlinx 默认后者覆盖前者）导致坏值被盖掉；`joinToString("")` 拼接 3000 条 JSONL 漏了换行；进度回调次数少数了 1（实现是「先回调 (0,total)，再每个完成回调一次」）；`broken/no-bank.zip` 夹具**其实含 `bank.jsonl`**，与用例名矛盾。另 1 个是「增量成环」用例与实现的严格校验冲突——校验器要求 `to > from`，成环清单在**解析期**就被拒，比运行时防环更强，已改为断言解析期拒绝 |
+| 7 | CI 首次运行在第一步失败 | `android-actions/setup-android@v3` 是 Node 20 的 action，在 runner 上被强制跑于 Node 24，接受 SDK license 的中途直接退出（日志里没有 `##[error]`，只有 Node 20 deprecation 警告）。runner 镜像本就预装 SDK，已改为直接用镜像自带 `sdkmanager` 补齐 `platforms;android-35` 与 `build-tools;34.0.0` |
+
+**实测结果**（本机 Windows 11 + JDK 17.0.2 + Gradle 8.10.2 + SDK 35/bt34.0.0，依赖走阿里云/腾讯镜像）：
+
+- `:app:assembleDebug` → **BUILD SUCCESSFUL**
+- `testDebugUnitTest` → **204 个用例全绿**：`:app` 20、`:core:data` 37、`:core:media` 59、`:core:update` 88，0 failures / 0 errors
+- 拼装产物 252 个文件，无任何 `build/`、`.gradle/`、`.venv/`、`local.properties` 污染（污染检查脚本见 `assemble_local.ps1` 末尾）
+- 仓库：`github.com/1535273240sch-droid/jiakao`（private，main 分支）
+- **CI（GitHub Actions）全绿**：`.github/workflows/android.yml` 在 runner 上跑 `testDebugUnitTest`
+  （204 用例，0 失败）+ `:app:assembleDebug` + `:app:assembleRelease`，并上传产物：
+  debug APK **20.3 MB**、release APK（unsigned，R8 full mode + 资源收缩）**2.6 MB**
+  —— 合同 §7 的「APK ≤ 25MB」这项在 release 变体上成立
+
+> 注意 CI 上第一次运行失败过一次：`android-actions/setup-android@v3` 在 Node 24 上崩（见上表 #7），
+> 换成镜像自带 sdkmanager 后连续两次运行均 success。
+
+**仍然没做的**（与本报告 2.1 节一致）：真机性能指标（① 冷启动 ② 滑动 P95 ③ 3000 题导入 ④ APK 体积 ⑤ 同时动图解码器）、`baseline-prof.txt` 生成（需设备）、以及羊皮卷视觉改版。
+
+> 环境补充：本机没有 bash/git/adb 进 PATH，但工具链都在 `C:\Users\Administrator\jiakao-tools\`（JDK 17.0.2 / Gradle 8.10.2 / Android SDK / `mirrors.init.gradle.kts` / `PortableGit`）。**04 与 05 的 DONE.md 里"本机没有 JDK/SDK/Gradle"的说法是错的**，只是没进 PATH。
+> 另外 GitHub 在本机是**可达的**，但只有 git 自带的 OpenSSL TLS 栈能过；Windows 自带的 `curl`（schannel）到 `github.com` 会被重置，`api.github.com` 反而正常。最终推送走的是 SSH（22 端口）。
+
