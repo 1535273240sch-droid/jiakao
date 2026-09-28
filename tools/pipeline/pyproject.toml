@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jiakao-pipeline"
+version = "1.0.0"
+description = "驾考题库内容流水线：原始题库（CSV/JSON/SQLite）→ 合同 §2/§3 题库包（全量/增量/离线包）"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "05-content-pipeline" }]
+keywords = ["jiakao", "question-bank", "pipeline", "static-publish"]
+dependencies = [
+    "pillow>=10.4",
+    "pydantic>=2.8",
+    "jsonschema>=4.23",
+    "pyyaml>=6.0",
+    "typer>=0.12",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3"]
+
+[project.scripts]
+jiakao-pipeline = "jiakao_pipeline.cli:main"
+
+[tool.setuptools]
+packages = ["jiakao_pipeline", "jiakao_pipeline.adapters", "jiakao_pipeline.schema"]
+
+[tool.setuptools.package-data]
+"jiakao_pipeline.schema" = ["*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+pythonpath = ["."]

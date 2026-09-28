@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug 变体清单片段（TASK 交付物 9）。
+  1) 引用网络安全配置：放行 10.0.2.2 / localhost / 局域网明文，release 不受影响。
+     若 :app 的 debug 清单也设置了 networkSecurityConfig，且值不是同一个资源，
+     合并会报「attribute conflict」——按提示在 :app 的 application 上加 tools:replace 即可。
+  2) 调试广播：联调时用 adb 触发检查/更新/离线包导入，免去点进设置页。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:ignore="UnusedAttribute">
+
+        <!-- <receiver> 必须是 <application> 的子元素；写在 manifest 级会被 AAPT 拒绝
+             （error: unexpected element <receiver> found in <manifest>）。 -->
+        <receiver
+            android:name="com.me.jiakao.core.update.DebugUpdateReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.me.jiakao.DEBUG_CHECK_UPDATE" />
+                <action android:name="com.me.jiakao.DEBUG_START_UPDATE" />
+                <action android:name="com.me.jiakao.DEBUG_IMPORT_BUNDLE" />
+                <action android:name="com.me.jiakao.DEBUG_SCHEDULE_AUTO" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

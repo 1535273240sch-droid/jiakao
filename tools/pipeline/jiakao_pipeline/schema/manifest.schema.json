@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiakao.local/schema/manifest.schema.json",
+  "title": "JiakaoBankManifest",
+  "description": "合同 §3：题库包清单，App（04 :core:update）按此判断是否需要更新、走增量还是全量。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "bank_version", "released_at", "min_app_version_code",
+    "chapters", "full", "deltas", "media_base", "bundle"
+  ],
+  "properties": {
+    "schema": { "const": 1 },
+    "bank_version": { "type": "integer", "minimum": 1 },
+    "released_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "min_app_version_code": { "type": "integer", "minimum": 1 },
+    "chapters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "subject", "name", "order"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^s[14]-c[0-9]{2}$" },
+          "subject": { "enum": [1, 4] },
+          "name": { "type": "string", "minLength": 1 },
+          "order": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "full": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "sha256", "bytes", "count"],
+      "properties": {
+        "url": { "type": "string", "pattern": "^full/bank-v[0-9]+\\.jsonl\\.gz$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "deltas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "url", "sha256", "bytes"],
+        "properties": {
+          "from": { "type": "integer", "minimum": 1 },
+          "to": { "type": "integer", "minimum": 2 },
+          "url": { "type": "string", "pattern": "^delta/v[0-9]+-v[0-9]+\\.jsonl\\.gz$" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "bytes": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "media_base": { "const": "media/" },
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "sha256", "bytes"],
+      "properties": {
+        "url": { "type": "string", "pattern": "^bundle/bundle-v[0-9]+\\.zip$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

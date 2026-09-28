@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 更新模块的通知文案（:app 可直接复用，也可自行覆盖同名资源） -->
+<resources>
+    <string name="jiakao_update_channel_name" translatable="false">题库更新</string>
+    <string name="jiakao_update_channel_description" translatable="false">题库更新进度与结果提示</string>
+
+    <string name="jiakao_update_foreground_title" translatable="false">正在更新题库</string>
+    <string name="jiakao_update_checking" translatable="false">正在检查题库更新…</string>
+    <string name="jiakao_update_available_short" translatable="false">发现新版本，准备下载</string>
+    <string name="jiakao_update_downloading_pack" translatable="false">下载题库包 %1$s / %2$s</string>
+    <string name="jiakao_update_importing" translatable="false">正在导入题库…</string>
+    <string name="jiakao_update_downloading_media" translatable="false">补齐媒体 %1$d / %2$d</string>
+    <string name="jiakao_update_done" translatable="false">题库已是最新</string>
+
+    <string name="jiakao_update_failed_title" translatable="false">题库更新失败</string>
+    <string name="jiakao_update_available_title" translatable="false">题库有更新（v%1$d）</string>
+    <string name="jiakao_update_available_text" translatable="false">约 %1$s，点击前往更新</string>
+</resources>

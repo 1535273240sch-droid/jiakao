@@ -1,0 +1,7 @@
+pillow>=10.4
+pydantic>=2.8
+jsonschema>=4.23
+pyyaml>=6.0
+typer>=0.12
+tqdm>=4.66
+pytest>=8.3

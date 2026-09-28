@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiakao.local/schema/question.schema.json",
+  "title": "JiakaoQuestion",
+  "description": "合同 §2：题库包中一行一题的 JSON。字段顺序不影响校验，但生成器按 id→rev 的顺序输出。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "subject", "vehicles", "type", "chapter_id", "tags",
+    "stem", "options", "answer", "explain", "media", "rev"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^s(1|4)-[0-9]{6}$",
+      "description": "稳定不复用，s{科目}-{6位序号}"
+    },
+    "subject": { "enum": [1, 4] },
+    "vehicles": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["car", "truck", "bus", "moto"] }
+    },
+    "type": { "enum": ["judge", "single", "multi"] },
+    "chapter_id": { "type": "string", "pattern": "^s[14]-c[0-9]{2}$" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "stem": { "type": "string", "minLength": 1 },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "text"],
+        "properties": {
+          "key": { "type": "string", "pattern": "^[A-H]$" },
+          "text": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "answer": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-H]$" },
+      "description": "按字母序排序"
+    },
+    "explain": { "type": "string" },
+    "media": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/mediaRef" }
+    },
+    "rev": { "type": "integer", "minimum": 1 }
+  },
+  "$defs": {
+    "mediaRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "ext", "kind", "w", "h", "bytes"],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "ext": { "enum": ["webp", "mp4"] },
+        "kind": { "enum": ["image", "anim", "video"] },
+        "w": { "type": "integer", "minimum": 1 },
+        "h": { "type": "integer", "minimum": 1 },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "deletedRow": {
+      "description": "增量文件中的删除行（合同 §2 末）",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "deleted"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^s(1|4)-[0-9]{6}$" },
+        "deleted": { "const": true }
+      }
+    }
+  }
+}

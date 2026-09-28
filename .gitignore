@@ -1,0 +1,13 @@
+.gradle/
+build/
+*.jks
+local.properties
+.idea/
+.venv/
+tools/pipeline/dist/
+tools/pipeline/state/
+tools/pipeline/work/
+tools/pipeline/sample/
+tools/pipeline/bench/
+__pycache__/
+*.py[cod]

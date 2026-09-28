@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  :core:update 的清单片段：只声明本模块真正需要的权限与 WorkManager 前台服务配置。
+  这些声明会合并进 :app（02 负责 @HiltAndroidApp 与运行时权限请求）。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 下载题库包与媒体 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 自动更新调度与「是否 Wi-Fi」判断 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- 加急前台任务（WorkManager setForeground） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Android 14（API 34）起前台服务必须声明类型：题库下载属于 dataSync -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- Android 13+ 通知权限：由 :app 在合适时机请求运行时权限（本模块只做兼容判断） -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application>
+        <!--
+          WorkManager 2.10 的前台服务需要 dataSync 类型（Android 14 强制要求），
+          用 tools:node="merge" 合并进 WorkManager 自己声明的 service。
+        -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+    </application>
+
+</manifest>

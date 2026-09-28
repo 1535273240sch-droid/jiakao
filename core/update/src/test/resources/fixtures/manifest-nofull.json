@@ -1,0 +1,30 @@
+{
+    "schema":  1,
+    "bank_version":  3,
+    "released_at":  "2026-09-28T12:00:00Z",
+    "min_app_version_code":  1,
+    "chapters":  [
+                     {
+                         "id":  "s1-c01",
+                         "subject":  1,
+                         "name":  "道路交通安全法律法规",
+                         "order":  1
+                     },
+                     {
+                         "id":  "s1-c02",
+                         "subject":  1,
+                         "name":  "交通信号",
+                         "order":  2
+                     }
+                 ],
+    "full":  null,
+    "deltas":  [
+
+               ],
+    "media_base":  "media/",
+    "bundle":  {
+                   "url":  "bundle/bundle-v2.zip",
+                   "sha256":  "1438a7201ee6395e74fe020dc9c4813ee4febea0d858a317c09fd5aff1e8e791",
+                   "bytes":  3527
+               }
+}

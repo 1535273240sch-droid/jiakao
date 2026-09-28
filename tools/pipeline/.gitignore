@@ -1,0 +1,12 @@
+# 中间产物与本地状态（可重建/可备份，不入库）
+work/
+dist/
+state/
+bench/
+sample/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/

@@ -1,0 +1,71 @@
+# 章节表（可编辑）：normalize 用它做章节映射，manifest.chapters 与校验收敛都以此为准。
+#
+# 字段说明
+#   id       合同 §2 要求形如 s{1|4}-c{2位序号}，可自行改名字但必须保持该格式
+#   subject  1 = 科目一，4 = 科目四
+#   name     展示名（会写进 manifest.json，App 章节列表直接显示）
+#   order    排序序号，题目全量快照按 (subject, order, id) 排序
+#   keywords 章节映射关键词：原始数据的"章节"字段先按 id/name 精确匹配，
+#            匹配不到时统计关键词命中次数，取命中最多的章节（并列取 order 小的）。
+#
+# 注意：keywords 只影响"原始题库的章节字段不规范"时的兜底映射，不影响已规范数据。
+version: 1
+chapters:
+  # ───────── 科目一 ─────────
+  - id: s1-c01
+    subject: 1
+    name: 道路通行条件及通行规定
+    order: 1
+    keywords: [通行, 车道, 路口, 让行, 掉头, 超车, 会车, 停车, 限速, 车速, 高速公路, 距离]
+  - id: s1-c02
+    subject: 1
+    name: 道路交通安全法律、法规和规章
+    order: 2
+    keywords: [法规, 法律, 违法, 处罚, 罚款, 记分, 驾驶证, 行驶证, 保险, 责任, 酒驾, 醉驾]
+  - id: s1-c03
+    subject: 1
+    name: 交通信号
+    order: 3
+    keywords: [标志, 标线, 信号灯, 手势, 交通警察, 警示, 指示, 禁令, 黄灯, 红灯, 绿灯]
+  - id: s1-c04
+    subject: 1
+    name: 安全行车、文明驾驶基础知识
+    order: 4
+    keywords: [安全, 文明, 礼让, 疲劳, 视线, 雨天, 雪天, 雾天, 夜间, 灯光]
+  - id: s1-c05
+    subject: 1
+    name: 机动车驾驶操作相关基础知识
+    order: 5
+    keywords: [操作, 变速, 制动, 离合, 转向, 仪表, 灯光开关, 轮胎, 检查, 检修]
+
+  # ───────── 科目四 ─────────
+  - id: s4-c01
+    subject: 4
+    name: 安全文明驾驶操作要求
+    order: 1
+    keywords: [操作要求, 文明驾驶, 礼让, 起步, 变更车道, 跟车, 观察]
+  - id: s4-c02
+    subject: 4
+    name: 恶劣气象和复杂道路条件下的安全驾驶知识
+    order: 2
+    keywords: [恶劣, 雨, 雪, 雾, 冰, 山路, 隧道, 桥梁, 泥泞, 涉水, 大风, 夜间, 湿滑]
+  - id: s4-c03
+    subject: 4
+    name: 爆胎等紧急情况下的临危处置方法
+    order: 3
+    keywords: [爆胎, 紧急, 失控, 失灵, 侧滑, 涉险, 撞车, 翻车, 着火, 自燃, 处置]
+  - id: s4-c04
+    subject: 4
+    name: 防范次生事故处置知识
+    order: 4
+    keywords: [次生, 事故现场, 警告, 三角警告牌, 撤离, 保护现场, 报警, 高速, 应急车道]
+  - id: s4-c05
+    subject: 4
+    name: 伤员急救知识
+    order: 5
+    keywords: [伤员, 急救, 止血, 包扎, 骨折, 心肺复苏, 昏迷, 搬运, 烫伤]
+  - id: s4-c06
+    subject: 4
+    name: 文明行车常识
+    order: 6
+    keywords: [文明, 行车常识, 违法行为, 社会公德, 环境保护, 鸣喇叭, 抛物, 远光灯]

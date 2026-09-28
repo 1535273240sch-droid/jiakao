@@ -1,0 +1,124 @@
+# 05 · 题库包 Nginx 配置模板
+#
+# 目标：静态托管 dist/，满足合同 §3 对客户端更新流程的全部要求。
+#
+#   ✓ gzip_static（.gz 直接发，不再二次压缩）
+#   ✓ ETag / If-None-Match（manifest.json 校验用，避免重复下载）
+#   ✓ Range（断点续传，合同 §3.5；nginx 默认支持，这里显式打开并配合 gzip_static 注意事项）
+#   ✓ 缓存头：media/ 永久缓存（immutable），manifest.json 不缓存，full/delta/ 短缓存
+#   ✓ CORS（WebView / 浏览器联调需要；原生 App 不需要但无副作用）
+#   ✓ 正确的 Content-Type 与 Content-Disposition（.jsonl.gz / .webp / .mp4 / .zip）
+#
+# 用法：
+#   sudo cp nginx.conf.example /etc/nginx/sites-available/jiakao
+#   sudo ln -s /etc/nginx/sites-available/jiakao /etc/nginx/sites-enabled/
+#   # 改下面 server_name / root 后：
+#   sudo nginx -t && sudo systemctl reload nginx
+#
+# 部署：把 dist/ 的内容（manifest.json、full/、delta/、media/、bundle/）整体放到 root 目录。
+
+server {
+    listen      80;
+    listen      [::]:80;
+    server_name jiakao.example.com;
+
+    # dist 内容所在目录
+    root  /var/www/jiakao;
+    index manifest.json;
+
+    charset       utf-8;
+    charset_types application/json text/plain;
+
+    # ── 基础 ──
+    autoindex off;
+    sendfile      on;
+    tcp_nopush    on;
+    keepalive_timeout 65;
+
+    # 断点续传：nginx 默认支持 Range，无需额外开关（合同 §3.5 要求 App 侧能续传）
+    etag          on;
+
+    # 静态 gzip：python 侧已生成 .gz（full/delta），这里只对文本产物启用静态压缩
+    gzip_static   on;
+
+    # CORS（联调/WebView 用；预检也一并放行）
+    add_header Access-Control-Allow-Origin  "*"        always;
+    add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "Range, If-None-Match, If-Modified-Since, Content-Type" always;
+    add_header Access-Control-Expose-Headers "ETag, Content-Length, Content-Range, Accept-Ranges, Last-Modified, Cache-Control" always;
+
+    # 类型补充：先 include 默认表再追加（只用 types 会**丢掉**默认映射）
+    types {
+        include                         /etc/nginx/mime.types;
+        application/x-ndjson            jsonl;
+        application/gzip                gz;
+        image/webp                      webp;
+        video/mp4                       mp4;
+        application/zip                 zip;
+    }
+    default_type application/octet-stream;
+
+    # ── manifest.json：绝不缓存（客户端靠 ETag 判断是否变化）──
+    location = /manifest.json {
+        add_header Cache-Control "no-cache, must-revalidate" always;
+        add_header Access-Control-Allow-Origin "*" always;
+        etag on;
+    }
+
+    # ── 媒体：内容寻址，文件名即内容哈希 → 永久缓存 ──
+    location /media/ {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header Access-Control-Allow-Origin "*" always;
+        access_log off;              # 媒体请求量最大，日志可关（按需打开）
+        expires max;
+        gzip_static off;             # 图片已是压缩格式，不要再找 .gz
+        open_file_cache max=10000 inactive=60s;
+        open_file_cache_valid 120s;
+        open_file_cache_min_uses 2;
+    }
+
+    # ── 全量 / 增量：版本化文件名 → 短缓存即可 ──
+    location ~ ^/(full|delta)/ {
+        add_header Cache-Control "public, max-age=300" always;
+        add_header Access-Control-Allow-Origin "*" always;
+        # .jsonl.gz 已经是 gzip 产物，直接当文件发（不要加 Content-Encoding: gzip，
+        # 否则客户端会以为拿到了解压后的内容，与合同 §3 的"客户端自行解压"冲突）
+        gzip_static off;
+    }
+
+    # ── 离线整包：大文件，允许长缓存，支持续传 ──
+    location /bundle/ {
+        add_header Cache-Control "public, max-age=86400" always;
+        add_header Access-Control-Allow-Origin "*" always;
+        gzip_static off;
+    }
+
+    # ── 禁止访问内部文件 ──
+    location ~ ^/(report\.md|\.media_cache\.json|.*\.part)$ {
+        deny all;
+    }
+    location ~ /\. { deny all; }
+
+    # 上传大包时不要把请求体缓冲到磁盘（运维上传用，可选）
+    client_max_body_size 512m;
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 可选：HTTPS（强烈建议，App 的明文 HTTP 在 Android 9+ 默认被禁）
+#   sudo certbot --nginx -d jiakao.example.com
+#
+# 可选：多机/多版本灰度
+#   把 manifest.json 换成软链（ln -sf manifest-v12.json manifest.json），
+#   切链是原子操作，客户端要么拿到整份 v12，要么整份 v11，不会拿到半新半旧。
+#
+# 可选：日志分析（看客户端有没有在拉增量）
+#   log_format bank '$remote_addr "$request" $status $body_bytes_sent "$http_user_agent"';
+#   access_log /var/log/nginx/jiakao.log bank;
+#
+# 排查清单：
+#   curl -sI http://host/manifest.json   # 期待: ETag + Cache-Control: no-cache
+#   curl -sI http://host/media/ab/xx.webp# 期待: Cache-Control: ...immutable
+#   curl -s -H 'Range: bytes=0-99' -o /dev/null -w '%{http_code}\n' http://host/full/bank-v12.jsonl.gz
+#                                        # 期待: 206
+#   curl -s -H 'If-None-Match: "<etag>"' -o /dev/null -w '%{http_code}\n' http://host/manifest.json
+#                                        # 期待: 304

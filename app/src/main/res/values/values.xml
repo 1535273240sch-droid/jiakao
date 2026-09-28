@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">驾考通</string>
+    <color name="ic_launcher_background">#0E5FD8</color>
+    <color name="window_background">#F7F9FE</color>
+</resources>
