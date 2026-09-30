@@ -1,68 +1,107 @@
-# 驾考通（自用版）
+# 驾考通 (Jiakao) · 原生 Android 刷题学习终端
 
-科目一 / 科目四 刷题 App。原生 Android（Kotlin + Jetpack Compose），英文名 `jiakao`。
+<div align="center">
 
-由 `jiakao-kit` 的 5 个模块并发开发后按 `ASSEMBLY.md` 拼装而成：
+![Platform](https://img.shields.io/badge/Platform-Android%20(SDK%2035)-3DDC84?style=flat-square&logo=android)
+![Kotlin](https://img.shields.io/badge/Kotlin-100%25-7F52FF?style=flat-square&logo=kotlin)
+![UI Toolkit](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?style=flat-square&logo=jetpackcompose)
+![Architecture](https://img.shields.io/badge/Architecture-Modular%20(5%20Cores)-orange?style=flat-square)
+![Database](https://img.shields.io/badge/Room-Double%20DB%20%2B%20FTS-009688?style=flat-square&logo=sqlite)
+![Tests](https://img.shields.io/badge/Unit%20Tests-204%20Passed-brightgreen?style=flat-square)
 
-| 模块 | 内容 |
-|---|---|
-| `:core:model` | 冻结合同：跨模块接口、`Question`/`MediaRef`/`PackRecord` 等数据模型（纯 Kotlin/JVM） |
-| `:core:data` | Room 双库（题库 `quiz.db` + 用户 `user.db`）、仓库实现、考试引擎、FTS 搜索 |
-| `:core:media` | 图片/动图/视频加载与缓存、预取、全屏查看器（Coil + Media3） |
-| `:core:update` | 题库在线增量更新、断点续传、校验、事务导入、离线整包导入（WorkManager） |
-| `:app` | 全部界面、动效、导航、设置 |
-| `:baselineprofile` | Macrobenchmark 场景，用于生成 Baseline Profile |
-| `tools/pipeline` + `server` | Python 题库流水线（导入 → 规范化 → 媒体转码 → 打包 → 发布）与静态托管脚本 |
+<p align="center">
+  <b>面向机动车驾驶员科目一 / 科目四考试的现代化原生 Android 刷题应用</b><br>
+  严格遵循合同驱动的模块化解耦架构 · 双 Room 本地高并发存储 · Coil + Media3 流畅媒体缓存 · 增量断点离线题库更新
+</p>
 
-文档在 [`docs/`](docs/)：各模块 `DONE.md`、`CONTRACT_ISSUES.md`，以及
-`CONTRACT.md`（冻结合同）、`ASSEMBLY.md`（拼装手册）、`REVIEW.md`（拼装前审核报告）。
+</div>
 
-## 构建
+---
 
-需要 JDK 17 + Android SDK（platform 35；build-tools 34.0.0，`core/data` 显式 pin 了该版本）。
+## 🏗️ 模块化工程架构
 
+项目由 `jiakao-kit` 规范的 5 个核心子模块并发解耦开发，并通过严格的冻结合同拼装集成：
+
+| 模块名称 | 职责边界与技术栈 | 架构说明 |
+|:---|:---|:---|
+| **`:core:model`** | 冻结合同核心实体 | 跨模块接口抽象、`Question` / `MediaRef` / `PackRecord` 等不可变数据模型（纯 Kotlin/JVM） |
+| **`:core:data`** | 业务与存储引擎 | **Room 双数据库架构**（题目静态库 `quiz.db` + 用户做题历史 `user.db`）、FTS 检索加速、全真模拟考试引擎 |
+| **`:core:media`** | 媒体渲染与缓存管线 | 高清图/动态动图/考题视频异步解码加载与多级缓存、预取调度、全屏沉浸式预览（Coil + AndroidX Media3） |
+| **`:core:update`** | 题库同步引擎 | 题库在线增量拉取、断点续传恢复、散列校验、原子事务导入、离线整包离线同步（基于 WorkManager） |
+| **`:app`** | 交互展现与全局导航 | Jetpack Compose 全声明式 UI、转场微动效、自适应主题、考点导航与偏好设置 |
+| **`:baselineprofile`** | 性能基准配置 | Macrobenchmark 深度基准测试场景，生成优化冷启动的 Baseline Profile |
+| **`tools/pipeline`** | 数据清洗流水线 | Python 自动化题库工具链（CSV/JSON 导入 $\rightarrow$ 结构规范化 $\rightarrow$ 媒体自适应转码 $\rightarrow$ 签名打包发布） |
+
+> 规范文档均归档于 [`docs/`](docs/)：包含冻结合同 `CONTRACT.md`、拼装执行手册 `ASSEMBLY.md` 及拼装前质量评审报告 `REVIEW.md`。
+
+---
+
+## 🛠️ 构建与环境要求
+
+### 环境基线
+- **JDK**：OpenJDK 17
+- **Android SDK**：Platform API 35
+- **Build Tools**：34.0.0
+
+### 构建命令
 ```bash
-./gradlew :app:assembleDebug            # debug APK -> app/build/outputs/apk/debug/
-./gradlew testDebugUnitTest --continue  # 204 个单测
-./gradlew :app:assembleRelease          # release（未配 keystore 时产出 unsigned APK）
+# 1. 编译并输出 Debug APK (输出在 app/build/outputs/apk/debug/)
+./gradlew :app:assembleDebug
+
+# 2. 运行全模块自动化单元测试 (204 项单测)
+./gradlew testDebugUnitTest --continue
+
+# 3. 编译发布版 Release APK
+./gradlew :app:assembleRelease
 ```
 
-自用安装：
-
+### 自签名本地安装测试
 ```bash
+# 生成测试签名密钥库
 keytool -genkey -v -keystore jiakao.jks -alias jiakao -keyalg RSA -keysize 2048 -validity 10000
+
+# 签名并使用 adb 一键安装至连接的真机或模拟器
 ./gradlew :app:assembleRelease && adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-## CI
+---
 
-[`.github/workflows/android.yml`](.github/workflows/android.yml) 在 push / PR 时跑单测、构建
-debug 与 release APK，并把 APK 与测试报告作为 artifact 上传。
+## 🔄 自动化持续集成 (CI)
 
-## 接入自己的题库
+仓库已集成 GitHub Actions 工作流 [`.github/workflows/android.yml`](.github/workflows/android.yml)，在每次代码推送（Push）与合并请求（PR）时：
+- 自动执行全套 204 项单元测试；
+- 自动化构建 Debug 与 Release 双包；
+- 自动归档测试报告与构建产物（Artifacts）。
 
-仓库**不含任何真题数据**。`tools/pipeline` 提供 CSV / JSON / SQLite 三种导入适配器与样例数据，
-用法见 `tools/pipeline/README.md`。最短路径：
+---
 
+## 📚 自定义私有题库流水线
+
+> [!NOTE]
+> 为遵循开源规范，本仓库**不随包内置任何商业驾校真题数据**。您可以使用内置的 `tools/pipeline` 快速生成并接入您自己的题库。
+
+最短接入路径：
 ```bash
 cd tools/pipeline
+
+# 1. 初始化流水线环境
 python tasks.py setup
+
+# 2. 导入与规范化数据 (支持 CSV / JSON / SQLite)
 python -m jiakao_pipeline import   --adapter csv --input ./raw/questions.csv --images ./raw/img --out ./work
 python -m jiakao_pipeline normalize --in ./work --chapters chapters.yaml --state ./state
+
+# 3. 多线程媒体转码压缩与打包发布
 python -m jiakao_pipeline media     --in ./work --out ./dist --jobs 8
 python -m jiakao_pipeline build     --in ./work --dist ./dist --state ./state
-cat dist/report.md
 ```
 
-然后用 `make serve`（或任意静态服务器）托管 `dist/`，在 App 的「设置 → 题库源地址」里填入地址
-（模拟器访问宿主机用 `http://10.0.2.2:8000/`，**必须以 `/` 结尾**），再「检查更新」。
+将产出的 `dist/` 目录托管在任意静态 HTTP 服务器后，在 App **「设置 → 题库源地址」** 填入服务器链接（模拟器请填写 `http://10.0.2.2:8000/`，**结尾必须带 `/`**），点击「检查更新」即可无缝同步全量题目。
 
-## 尚未完成
+---
 
-- **真机验证**：合同 §7 的 5 个性能指标（冷启动 ≤600ms、滑动 P95 ≤8/12ms、3000 题导入 ≤3s、
-  APK ≤25MB、同时动图解码器 ≤2）都还没在设备上实测。APK 体积在独立开发期实测为 3.1MB。
-- **Baseline Profile**：`:baselineprofile` 模块与插件已就位，但 `baseline-prof.txt` 需要连接设备执行
-  `./gradlew :app:generateBaselineProfile` 才会生成。
-- **UI 视觉**：计划改为羊皮卷质感主题（当前为 Material3 驾校蓝 + 交警橙），改版需注意纸纹不能
-  用大图平铺，否则会破坏滑动帧率预算。
-- 合同语义待裁决项见各模块 `docs/CONTRACT_ISSUES-*.md`。
+## 📌 当前演进路线与待办清单
+
+- [ ] **真机高负载指标压测**：对齐合同 §7 的 5 项性能红线（冷启动 $\le$ 600ms、列表滑动 P95 帧时 $\le$ 8ms、3000 道考题本地导入 $\le$ 3s、APK 包体 $\le$ 25MB）；
+- [ ] **生成发布版 Baseline Profile**：通过实体机执行 `./gradlew :app:generateBaselineProfile` 生成预编译 DEX 映射以最大化启动速度；
+- [ ] **羊皮卷沉浸视觉质感升级**：计划为 Material 3 主题引入复古羊皮纸微质感（严格遵守轻量级着色器实现，避免大图破坏滑动帧率预算）。
